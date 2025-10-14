@@ -18,7 +18,7 @@ export class RuleComposer {
       ...overrides,
       id: overrides.id || `${baseRule.id}-extended`,
       conditions: overrides.conditions || baseRule.conditions,
-      config: this.deepMerge(baseRule.config, overrides.config),
+      config: this.deepMerge(baseRule.config, overrides.config || {}),
       metadata: {
         ...baseRule.metadata,
         ...overrides.metadata,
@@ -82,7 +82,7 @@ export class RuleComposer {
   applyMixin(targetRule: ConfigRule, mixinRule: ConfigRule): ConfigRule {
     return {
       ...targetRule,
-      config: this.mergeConfigs(targetRule.config, mixinRule.config, "merge"),
+      config: this.deepMerge(targetRule.config, mixinRule.config),
       conditions: [...targetRule.conditions, ...mixinRule.conditions],
       tags: [...(targetRule.tags || []), ...(mixinRule.tags || []), "mixed"],
       metadata: {
@@ -223,7 +223,7 @@ export class RuleComposer {
     }
   }
 
-  private deepMerge(target: any, source: any): any {
+  public deepMerge(target: any, source: any): any {
     const result = { ...target };
     for (const key in source) {
       if (

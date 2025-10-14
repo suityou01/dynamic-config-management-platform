@@ -55,9 +55,7 @@ export const merge = <T extends IObject[]>(...objects: T): TMerged<T[number]> =>
     }
 
     if (Array.isArray(current)) {
-      throw new TypeError(
-        "Arguments provided to ts-deepmerge must be objects, not arrays.",
-      );
+      throw new TypeError("Arguments provided must be objects, not arrays.");
     }
 
     Object.keys(current).forEach((key) => {

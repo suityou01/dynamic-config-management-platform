@@ -18,7 +18,7 @@ export class RuleComposer {
       ...overrides,
       id: overrides.id || `${baseRule.id}-extended`,
       conditions: overrides.conditions || baseRule.conditions,
-      config: merge(baseRule.config, overrides.config),
+      config: this.deepMerge(baseRule.config, overrides.config),
       metadata: {
         ...baseRule.metadata,
         ...overrides.metadata,
@@ -106,22 +106,38 @@ export class RuleComposer {
       throw new Error("Rule ID must be provided when creating from template");
     }
 
-    return {
+    // Deep merge configs instead of shallow merge
+    const mergedConfig = this.deepMerge(
+      template.config || {},
+      overrides.config || {},
+    );
+
+    const rule: ConfigRule = {
+      id: overrides.id,
       name: overrides.name || template.name || "Unnamed Rule",
       description: overrides.description || template.description,
       priority: overrides.priority ?? template.priority ?? 0,
       conditions: overrides.conditions || template.conditions || [],
-      config: { ...template.config, ...overrides.config },
+      config: mergedConfig,
       resolutionStrategy:
         overrides.resolutionStrategy || template.resolutionStrategy || "merge",
       enabled: overrides.enabled ?? template.enabled ?? true,
-      ...overrides,
+      dependencies: overrides.dependencies || template.dependencies,
+      exclusions: overrides.exclusions || template.exclusions,
+      chain: overrides.chain || template.chain,
+      executeAfter: overrides.executeAfter || template.executeAfter,
+      executeBefore: overrides.executeBefore || template.executeBefore,
+      stopPropagation: overrides.stopPropagation ?? template.stopPropagation,
+      composition: overrides.composition || template.composition,
+      tags: overrides.tags || template.tags,
       metadata: {
         ...template.metadata,
         ...overrides.metadata,
         createdFromTemplate: templateId,
       },
-    } as ConfigRule;
+    };
+
+    return rule;
   }
 
   // Process rule composition
@@ -141,7 +157,14 @@ export class RuleComposer {
         if (!baseRule) {
           throw new Error(`Base rule not found: ${baseRuleId}`);
         }
-        return this.extendRule(baseRule, { ...overrides, id: rule.id });
+        // Merge the original rule's properties with overrides
+        const combinedOverrides = {
+          ...rule,
+          ...overrides,
+          id: rule.id,
+          config: this.deepMerge(rule.config || {}, overrides?.config || {}),
+        };
+        return this.extendRule(baseRule, combinedOverrides);
       }
 
       case "compose": {

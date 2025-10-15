@@ -1,0 +1,162 @@
+{
+  "id": "govuk-app-v001",
+  "appId": "GovUK.App",
+  "version": "0.0.1",
+  "environment": "production",
+  "createdAt": "2025-01-15T10:00:00Z",
+  "updatedAt": "2025-01-15T10:00:00Z",
+  "schema": {
+    "version": "0.0.1",
+    "requiredKeys": [
+      "apiEndpoint",
+      "enableAnalytics",
+      "theme"
+    ],
+    "optionalKeys": [
+      "maxRetries",
+      "timeout",
+      "cacheExpiry",
+      "featureToggles"
+    ],
+    "deprecatedKeys": []
+  },
+  "defaultConfig": {
+    "apiEndpoint": "https://api.gov.uk/v1",
+    "enableAnalytics": true,
+    "theme": "light",
+    "maxRetries": 3,
+    "timeout": 5000,
+    "cacheExpiry": 3600,
+    "featureToggles": {
+      "newDashboard": false,
+      "biometricAuth": false,
+      "offlineMode": false
+    }
+  },
+  "featureFlags": {
+    "betaFeatures": false,
+    "advancedAnalytics": false
+  },
+  "rolloutPercentages": {},
+  "ruleTemplates": {
+    "mobile-optimized": {
+      "name": "Mobile Optimized Config",
+      "priority": 50,
+      "conditions": [
+        {
+          "type": "device",
+          "operator": "eq",
+          "value": "Mobile"
+        }
+      ],
+      "config": {
+        "timeout": 8000,
+        "maxRetries": 5
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true
+    },
+    "uk-region": {
+      "name": "UK Region Config",
+      "priority": 40,
+      "conditions": [
+        {
+          "type": "geo_country",
+          "operator": "eq",
+          "value": "GB"
+        }
+      ],
+      "config": {
+        "apiEndpoint": "https://api.gov.uk/v1"
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true
+    }
+  },
+  "rules": [
+    {
+      "id": "ios-base",
+      "name": "iOS Base Configuration",
+      "description": "Base configuration for iOS devices",
+      "priority": 100,
+      "conditions": [
+        {
+          "type": "os",
+          "operator": "eq",
+          "value": "iOS"
+        }
+      ],
+      "config": {
+        "theme": "auto",
+        "featureToggles": {
+          "biometricAuth": true
+        }
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true,
+      "tags": ["ios", "base"]
+    },
+    {
+      "id": "android-base",
+      "name": "Android Base Configuration",
+      "description": "Base configuration for Android devices",
+      "priority": 100,
+      "conditions": [
+        {
+          "type": "os",
+          "operator": "eq",
+          "value": "Android"
+        }
+      ],
+      "config": {
+        "theme": "light",
+        "timeout": 6000
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true,
+      "tags": ["android", "base"]
+    },
+    {
+      "id": "uk-users",
+      "name": "UK Users Configuration",
+      "description": "Optimized configuration for UK users",
+      "priority": 80,
+      "conditions": [
+        {
+          "type": "geo_country",
+          "operator": "eq",
+          "value": "GB"
+        }
+      ],
+      "config": {
+        "apiEndpoint": "https://api.gov.uk/v1",
+        "cacheExpiry": 7200
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true,
+      "tags": ["geo", "uk"]
+    },
+    {
+      "id": "mobile-optimization",
+      "name": "Mobile Device Optimization",
+      "description": "Performance optimizations for mobile devices",
+      "priority": 60,
+      "conditions": [
+        {
+          "type": "device",
+          "operator": "eq",
+          "value": "Mobile"
+        }
+      ],
+      "config": {
+        "maxRetries": 5,
+        "timeout": 8000
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true,
+      "tags": ["mobile", "performance"]
+    }
+  ],
+  "conditionalRules": []
+}
+

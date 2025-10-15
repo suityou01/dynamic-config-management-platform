@@ -1,0 +1,268 @@
+{
+  "id": "govuk-app-v002",
+  "appId": "GovUK.App",
+  "version": "0.0.2",
+  "environment": "production",
+  "createdAt": "2025-02-01T10:00:00Z",
+  "updatedAt": "2025-02-01T10:00:00Z",
+  "schema": {
+    "version": "0.0.2",
+    "requiredKeys": [
+      "apiEndpoint",
+      "enableAnalytics",
+      "theme"
+    ],
+    "optionalKeys": [
+      "maxRetries",
+      "timeout",
+      "cacheExpiry",
+      "featureToggles",
+      "notificationSettings",
+      "securityLevel"
+    ],
+    "deprecatedKeys": []
+  },
+  "defaultConfig": {
+    "apiEndpoint": "https://api.gov.uk/v2",
+    "enableAnalytics": true,
+    "theme": "auto",
+    "maxRetries": 3,
+    "timeout": 5000,
+    "cacheExpiry": 3600,
+    "securityLevel": "standard",
+    "featureToggles": {
+      "newDashboard": true,
+      "biometricAuth": true,
+      "offlineMode": true,
+      "pushNotifications": false,
+      "darkMode": true
+    },
+    "notificationSettings": {
+      "enabled": true,
+      "frequency": "daily",
+      "categories": ["updates", "alerts"]
+    }
+  },
+  "featureFlags": {
+    "betaFeatures": true,
+    "advancedAnalytics": true,
+    "experimentalUI": false
+  },
+  "rolloutPercentages": {
+    "beta-users": 25
+  },
+  "ruleTemplates": {
+    "mobile-optimized": {
+      "name": "Mobile Optimized Config",
+      "priority": 50,
+      "conditions": [
+        {
+          "type": "device",
+          "operator": "eq",
+          "value": "Mobile"
+        }
+      ],
+      "config": {
+        "timeout": 8000,
+        "maxRetries": 5
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true
+    },
+    "uk-region": {
+      "name": "UK Region Config",
+      "priority": 40,
+      "conditions": [
+        {
+          "type": "geo_country",
+          "operator": "eq",
+          "value": "GB"
+        }
+      ],
+      "config": {
+        "apiEndpoint": "https://api.gov.uk/v2"
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true
+    },
+    "high-security": {
+      "name": "High Security Template",
+      "priority": 90,
+      "config": {
+        "securityLevel": "high",
+        "featureToggles": {
+          "biometricAuth": true
+        }
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true
+    }
+  },
+  "rules": [
+    {
+      "id": "ios-base-v2",
+      "name": "iOS Base Configuration v2",
+      "description": "Enhanced base configuration for iOS devices",
+      "priority": 100,
+      "conditions": [
+        {
+          "type": "os",
+          "operator": "eq",
+          "value": "iOS"
+        }
+      ],
+      "config": {
+        "theme": "auto",
+        "featureToggles": {
+          "biometricAuth": true,
+          "darkMode": true,
+          "pushNotifications": true
+        }
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true,
+      "tags": ["ios", "base", "v2"]
+    },
+    {
+      "id": "android-base-v2",
+      "name": "Android Base Configuration v2",
+      "description": "Enhanced base configuration for Android devices",
+      "priority": 100,
+      "conditions": [
+        {
+          "type": "os",
+          "operator": "eq",
+          "value": "Android"
+        }
+      ],
+      "config": {
+        "theme": "auto",
+        "timeout": 6000,
+        "featureToggles": {
+          "pushNotifications": true
+        }
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true,
+      "tags": ["android", "base", "v2"]
+    },
+    {
+      "id": "uk-users-v2",
+      "name": "UK Users Configuration v2",
+      "description": "Enhanced configuration for UK users with new features",
+      "priority": 80,
+      "conditions": [
+        {
+          "type": "geo_country",
+          "operator": "eq",
+          "value": "GB"
+        }
+      ],
+      "config": {
+        "apiEndpoint": "https://api.gov.uk/v2",
+        "cacheExpiry": 7200,
+        "notificationSettings": {
+          "enabled": true,
+          "frequency": "realtime"
+        }
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true,
+      "tags": ["geo", "uk", "v2"]
+    },
+    {
+      "id": "mobile-optimization-v2",
+      "name": "Mobile Device Optimization v2",
+      "description": "Enhanced performance optimizations for mobile devices",
+      "priority": 60,
+      "conditions": [
+        {
+          "type": "device",
+          "operator": "eq",
+          "value": "Mobile"
+        }
+      ],
+      "config": {
+        "maxRetries": 5,
+        "timeout": 8000,
+        "cacheExpiry": 5400,
+        "featureToggles": {
+          "offlineMode": true
+        }
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true,
+      "tags": ["mobile", "performance", "v2"]
+    },
+    {
+      "id": "beta-testers",
+      "name": "Beta Testers Program",
+      "description": "Special configuration for beta testing users",
+      "priority": 120,
+      "conditions": [
+        {
+          "type": "app_version",
+          "operator": "gte",
+          "value": "0.0.2"
+        }
+      ],
+      "config": {
+        "featureToggles": {
+          "newDashboard": true,
+          "experimentalFeatures": true
+        },
+        "enableAnalytics": true
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true,
+      "tags": ["beta", "testing"]
+    },
+    {
+      "id": "government-workers",
+      "name": "Government Workers Enhanced Security",
+      "description": "High security configuration for government employees",
+      "priority": 150,
+      "conditions": [
+        {
+          "type": "user_agent_match",
+          "operator": "regex",
+          "value": "GovWorker"
+        }
+      ],
+      "config": {
+        "securityLevel": "high",
+        "timeout": 10000,
+        "featureToggles": {
+          "biometricAuth": true
+        }
+      },
+      "resolutionStrategy": "merge",
+      "enabled": true,
+      "executeAfter": ["ios-base-v2", "android-base-v2"],
+      "tags": ["security", "gov-workers"]
+    }
+  ],
+  "conditionalRules": [
+    {
+      "ruleId": "experimental-ui",
+      "loadConditions": [
+        {
+          "type": "feature_flag",
+          "value": {
+            "flagName": "experimentalUI",
+            "expectedValue": true
+          }
+        },
+        {
+          "type": "percentage_rollout",
+          "value": {
+            "percentage": 10,
+            "ruleId": "experimental-ui"
+          }
+        }
+      ],
+      "lazyLoad": true
+    }
+  ]
+}
+

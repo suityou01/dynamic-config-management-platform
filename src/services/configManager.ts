@@ -1,12 +1,12 @@
-import * as fs from "node:fs";
+import { promises as fs } from "node:fs";
 import * as path from "node:path";
-import { ConfigSpecification } from "../../types";
+import { ConfigSpecification, ConfigSchema } from "../types";
 
 export class ConfigurationManager {
   private configDir: string;
   private specifications: Map<string, ConfigSpecification> = new Map();
 
-  constructor(configDir: string = "../../config-store") {
+  constructor(configDir: string = "./config-store") {
     this.configDir = configDir;
   }
 

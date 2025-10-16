@@ -1,8 +1,8 @@
 import express, { Request, Response } from "express";
 import { UAParser } from "ua-parser-js";
-import { ConfigurationManager } from "./services/configManager";
 import { RuleComposer } from "./services/ruleComposition";
 import { RuleEngine } from "./services/ruleEngine";
+import { ConfigurationManager } from "./services/configManager";
 import { ConditionalRuleLoader } from "./services/conditionalRuleLoader";
 import { GeoLocationService } from "./services/geolocation";
 import { ConfigRule, RequestContext, ConfigSpecification } from "./types";
@@ -31,7 +31,7 @@ function extractAppVersion(ua: string): string {
 function getClientIP(req: Request): string {
   return (
     (req.headers["x-forwarded-for"] as string)?.split(",")[0] ||
-    req.socket.remoteAddress ||
+    req.connection.remoteAddress ||
     "127.0.0.1"
   );
 }
@@ -39,20 +39,6 @@ function getClientIP(req: Request): string {
 // ============================================
 // Routes
 // ============================================
-
-// GET /config/:appId/:version - Fetch configuration
-app.get("/config/:appId/:version/spec", async (req: Request, res: Response) => {
-  const { appId, version } = req.params;
-  const spec = configManager.getSpecification(appId, version);
-  if (!spec) {
-    return res.status(404).json({
-      error: "Configuration not found",
-      appId,
-      version,
-    });
-  }
-  res.status(200).json(spec);
-});
 
 // GET /config/:appId/:version - Fetch configuration
 app.get("/config/:appId/:version", async (req: Request, res: Response) => {
@@ -119,8 +105,14 @@ app.get("/config/:appId/:version", async (req: Request, res: Response) => {
       processedRules,
     );
 
-    // Combine all rules
-    const allRules = [...processedRules, ...conditionalRules];
+    // Filter out conditional rules that are already in processedRules to avoid duplicates
+    const conditionalRuleIds = new Set(conditionalRules.map((r) => r.id));
+    const baseRules = processedRules.filter(
+      (r) => !conditionalRuleIds.has(r.id),
+    );
+
+    // Combine: base rules + conditional rules (conditional rules only if conditions met)
+    const allRules = [...baseRules, ...conditionalRules];
 
     // Evaluate rules
     const { matched, results } = ruleEngine.evaluateAllRules(allRules, context);
@@ -488,5 +480,14 @@ app.get("/health", (req: Request, res: Response) => {
 });
 
 app.listen(port, () => {
-  return console.log(`Express is listening at http://localhost:${port}`);
+  console.log(
+    `🚀 Configuration Management Server running at http://localhost:${port}`,
+  );
+  console.log(`📊 Health check: http://localhost:${port}/health`);
+  console.log(`📝 API Documentation:`);
+  console.log(`   GET    /config/:appId/:version - Fetch configuration`);
+  console.log(`   POST   /config - Create configuration`);
+  console.log(`   PUT    /config/:appId/:version - Update configuration`);
+  console.log(`   DELETE /config/:appId/:version - Delete configuration`);
+  console.log(`   GET    /config - List all configurations`);
 });

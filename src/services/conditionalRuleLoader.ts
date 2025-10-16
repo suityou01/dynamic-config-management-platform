@@ -1,5 +1,36 @@
+import {
+  LoadCondition,
+  ConditionalRule,
+  RequestContext,
+  ConfigSpecification,
+  ConfigRule,
+} from "../types";
+import * as crypto from "crypto";
+
 export class ConditionalRuleLoader {
-  private loadedRules: Map<string, ConfigRule> = new Map();
+  private loadedRulesCache: Map<string, Map<string, ConfigRule>> = new Map();
+
+  private generateCacheKey(
+    context: RequestContext,
+    spec: ConfigSpecification,
+  ): string {
+    // Create a deterministic hash of the request context
+    const cacheObject = {
+      userId: context.userId,
+      customContext: context.customContext,
+      featureFlags: context.featureFlags,
+      environment: context.environment,
+      specId: spec.id,
+      specVersion: spec.version,
+    };
+
+    const hash = crypto
+      .createHash("md5")
+      .update(JSON.stringify(cacheObject))
+      .digest("hex");
+
+    return hash;
+  }
 
   evaluateLoadCondition(
     condition: LoadCondition,
@@ -57,30 +88,36 @@ export class ConditionalRuleLoader {
       return [];
     }
 
-    const loadedRules: ConfigRule[] = [];
+    const cacheKey = this.generateCacheKey(context, spec);
+
+    // Check if we have cached results for this exact context
+    if (this.loadedRulesCache.has(cacheKey)) {
+      const cachedRules = this.loadedRulesCache.get(cacheKey)!;
+      return Array.from(cachedRules.values());
+    }
+
+    const loadedRulesMap = new Map<string, ConfigRule>();
 
     for (const conditionalRule of spec.conditionalRules) {
-      // Check if already loaded
-      if (this.loadedRules.has(conditionalRule.ruleId)) {
-        loadedRules.push(this.loadedRules.get(conditionalRule.ruleId)!);
-        continue;
-      }
-
       // Evaluate load conditions
       if (this.shouldLoadRule(conditionalRule, context, spec)) {
         const rule = allRules.find((r) => r.id === conditionalRule.ruleId);
         if (rule) {
-          this.loadedRules.set(conditionalRule.ruleId, rule);
-          loadedRules.push(rule);
+          // Enable the rule when loading conditionally
+          const enabledRule = { ...rule, enabled: true };
+          loadedRulesMap.set(conditionalRule.ruleId, enabledRule);
         }
       }
     }
 
-    return loadedRules;
+    // Cache the results for this context
+    this.loadedRulesCache.set(cacheKey, loadedRulesMap);
+
+    return Array.from(loadedRulesMap.values());
   }
 
   clearCache(): void {
-    this.loadedRules.clear();
+    this.loadedRulesCache.clear();
   }
 
   private hashString(str: string): number {
@@ -107,8 +144,14 @@ export class ConditionalRuleLoader {
         return contextValue > value;
       case "lt":
         return contextValue < value;
+      case "gte":
+        return contextValue >= value;
+      case "lte":
+        return contextValue <= value;
       case "in":
         return Array.isArray(value) && value.includes(contextValue);
+      case "regex":
+        return new RegExp(value).test(String(contextValue));
       default:
         return false;
     }

@@ -1,268 +1,509 @@
 {
-  "id": "govuk-app-v002",
-  "appId": "GovUK.App",
-  "version": "0.0.2",
-  "environment": "production",
-  "createdAt": "2025-02-01T10:00:00Z",
-  "updatedAt": "2025-02-01T10:00:00Z",
-  "schema": {
-    "version": "0.0.2",
-    "requiredKeys": [
-      "apiEndpoint",
-      "enableAnalytics",
-      "theme"
-    ],
-    "optionalKeys": [
-      "maxRetries",
-      "timeout",
-      "cacheExpiry",
-      "featureToggles",
-      "notificationSettings",
-      "securityLevel"
-    ],
-    "deprecatedKeys": []
-  },
-  "defaultConfig": {
-    "apiEndpoint": "https://api.gov.uk/v2",
-    "enableAnalytics": true,
-    "theme": "auto",
-    "maxRetries": 3,
-    "timeout": 5000,
-    "cacheExpiry": 3600,
-    "securityLevel": "standard",
-    "featureToggles": {
-      "newDashboard": true,
-      "biometricAuth": true,
-      "offlineMode": true,
-      "pushNotifications": false,
-      "darkMode": true
-    },
-    "notificationSettings": {
-      "enabled": true,
-      "frequency": "daily",
-      "categories": ["updates", "alerts"]
-    }
-  },
-  "featureFlags": {
-    "betaFeatures": true,
-    "advancedAnalytics": true,
-    "experimentalUI": false
-  },
-  "rolloutPercentages": {
-    "beta-users": 25
-  },
-  "ruleTemplates": {
-    "mobile-optimized": {
-      "name": "Mobile Optimized Config",
-      "priority": 50,
-      "conditions": [
-        {
-          "type": "device",
-          "operator": "eq",
-          "value": "Mobile"
-        }
-      ],
-      "config": {
-        "timeout": 8000,
-        "maxRetries": 5
-      },
-      "resolutionStrategy": "merge",
-      "enabled": true
-    },
-    "uk-region": {
-      "name": "UK Region Config",
-      "priority": 40,
-      "conditions": [
-        {
-          "type": "geo_country",
-          "operator": "eq",
-          "value": "GB"
-        }
-      ],
-      "config": {
-        "apiEndpoint": "https://api.gov.uk/v2"
-      },
-      "resolutionStrategy": "merge",
-      "enabled": true
-    },
-    "high-security": {
-      "name": "High Security Template",
-      "priority": 90,
-      "config": {
-        "securityLevel": "high",
-        "featureToggles": {
-          "biometricAuth": true
-        }
-      },
-      "resolutionStrategy": "merge",
-      "enabled": true
-    }
-  },
-  "rules": [
-    {
-      "id": "ios-base-v2",
-      "name": "iOS Base Configuration v2",
-      "description": "Enhanced base configuration for iOS devices",
-      "priority": 100,
-      "conditions": [
-        {
-          "type": "os",
-          "operator": "eq",
-          "value": "iOS"
-        }
-      ],
-      "config": {
-        "theme": "auto",
-        "featureToggles": {
-          "biometricAuth": true,
-          "darkMode": true,
-          "pushNotifications": true
-        }
-      },
-      "resolutionStrategy": "merge",
-      "enabled": true,
-      "tags": ["ios", "base", "v2"]
-    },
-    {
-      "id": "android-base-v2",
-      "name": "Android Base Configuration v2",
-      "description": "Enhanced base configuration for Android devices",
-      "priority": 100,
-      "conditions": [
-        {
-          "type": "os",
-          "operator": "eq",
-          "value": "Android"
-        }
-      ],
-      "config": {
-        "theme": "auto",
-        "timeout": 6000,
-        "featureToggles": {
-          "pushNotifications": true
-        }
-      },
-      "resolutionStrategy": "merge",
-      "enabled": true,
-      "tags": ["android", "base", "v2"]
-    },
-    {
-      "id": "uk-users-v2",
-      "name": "UK Users Configuration v2",
-      "description": "Enhanced configuration for UK users with new features",
-      "priority": 80,
-      "conditions": [
-        {
-          "type": "geo_country",
-          "operator": "eq",
-          "value": "GB"
-        }
-      ],
-      "config": {
-        "apiEndpoint": "https://api.gov.uk/v2",
-        "cacheExpiry": 7200,
-        "notificationSettings": {
-          "enabled": true,
-          "frequency": "realtime"
-        }
-      },
-      "resolutionStrategy": "merge",
-      "enabled": true,
-      "tags": ["geo", "uk", "v2"]
-    },
-    {
-      "id": "mobile-optimization-v2",
-      "name": "Mobile Device Optimization v2",
-      "description": "Enhanced performance optimizations for mobile devices",
-      "priority": 60,
-      "conditions": [
-        {
-          "type": "device",
-          "operator": "eq",
-          "value": "Mobile"
-        }
-      ],
-      "config": {
-        "maxRetries": 5,
-        "timeout": 8000,
-        "cacheExpiry": 5400,
-        "featureToggles": {
-          "offlineMode": true
-        }
-      },
-      "resolutionStrategy": "merge",
-      "enabled": true,
-      "tags": ["mobile", "performance", "v2"]
-    },
-    {
-      "id": "beta-testers",
-      "name": "Beta Testers Program",
-      "description": "Special configuration for beta testing users",
-      "priority": 120,
-      "conditions": [
-        {
-          "type": "app_version",
-          "operator": "gte",
-          "value": "0.0.2"
-        }
-      ],
-      "config": {
-        "featureToggles": {
-          "newDashboard": true,
-          "experimentalFeatures": true
-        },
-        "enableAnalytics": true
-      },
-      "resolutionStrategy": "merge",
-      "enabled": true,
-      "tags": ["beta", "testing"]
-    },
-    {
-      "id": "government-workers",
-      "name": "Government Workers Enhanced Security",
-      "description": "High security configuration for government employees",
-      "priority": 150,
-      "conditions": [
-        {
-          "type": "user_agent_match",
-          "operator": "regex",
-          "value": "GovWorker"
-        }
-      ],
-      "config": {
-        "securityLevel": "high",
-        "timeout": 10000,
-        "featureToggles": {
-          "biometricAuth": true
-        }
-      },
-      "resolutionStrategy": "merge",
-      "enabled": true,
-      "executeAfter": ["ios-base-v2", "android-base-v2"],
-      "tags": ["security", "gov-workers"]
-    }
-  ],
-  "conditionalRules": [
-    {
-      "ruleId": "experimental-ui",
-      "loadConditions": [
-        {
-          "type": "feature_flag",
-          "value": {
-            "flagName": "experimentalUI",
-            "expectedValue": true
-          }
-        },
-        {
-          "type": "percentage_rollout",
-          "value": {
-            "percentage": 10,
-            "ruleId": "experimental-ui"
-          }
-        }
-      ],
-      "lazyLoad": true
-    }
-  ]
+	"id": "govuk-app-v002",
+	"appId": "GovUK.App",
+	"version": "0.0.2",
+	"environment": "production",
+	"createdAt": "2025-02-01T10:00:00Z",
+	"updatedAt": "2025-02-01T10:00:00Z",
+	"schema": {
+		"version": "0.0.2",
+		"requiredKeys": ["apiEndpoint", "enableAnalytics", "theme"],
+		"optionalKeys": [
+			"maxRetries",
+			"timeout",
+			"cacheExpiry",
+			"featureToggles",
+			"notificationSettings",
+			"securityLevel",
+			"debugMode",
+			"logLevel"
+		],
+		"deprecatedKeys": []
+	},
+	"defaultConfig": {
+		"apiEndpoint": "https://api.gov.uk/v2",
+		"enableAnalytics": true,
+		"theme": "auto",
+		"maxRetries": 3,
+		"timeout": 5000,
+		"cacheExpiry": 3600,
+		"securityLevel": "standard",
+		"debugMode": false,
+		"logLevel": "info",
+		"featureToggles": {
+			"newDashboard": false,
+			"biometricAuth": true,
+			"offlineMode": false,
+			"pushNotifications": false,
+			"darkMode": true,
+			"mpOnlyFeatures": false,
+			"constituencyInsights": false,
+			"votingAlerts": false,
+			"experimentalFeatures": false
+		},
+		"notificationSettings": {
+			"enabled": true,
+			"frequency": "daily",
+			"categories": ["updates", "alerts"]
+		}
+	},
+	"featureFlags": {
+		"betaFeatures": true,
+		"advancedAnalytics": true,
+		"experimentalUI": false
+	},
+	"rolloutPercentages": {
+		"beta-users": 25,
+		"experimental-ui": 10,
+		"new-dashboard": 50
+	},
+	"ruleTemplates": {
+		"mobile-optimized": {
+			"name": "Mobile Optimized Config",
+			"priority": 50,
+			"conditions": [
+				{
+					"type": "device",
+					"operator": "eq",
+					"value": "Mobile"
+				}
+			],
+			"config": {
+				"timeout": 8000,
+				"maxRetries": 5
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true
+		},
+		"uk-region": {
+			"name": "UK Region Config",
+			"priority": 40,
+			"conditions": [
+				{
+					"type": "geo_country",
+					"operator": "eq",
+					"value": "GB"
+				}
+			],
+			"config": {
+				"apiEndpoint": "https://api.gov.uk/v2",
+				"cacheExpiry": 7200
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true
+		},
+		"high-security": {
+			"name": "High Security Template",
+			"priority": 90,
+			"config": {
+				"securityLevel": "high",
+				"timeout": 10000,
+				"featureToggles": {
+					"biometricAuth": true
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true
+		}
+	},
+	"rules": [
+		{
+			"id": "development-environment",
+			"name": "Development Environment Config",
+			"description": "Debug mode and verbose logging for development",
+			"priority": 300,
+			"conditions": [
+				{
+					"type": "user_agent_match",
+					"operator": "regex",
+					"value": ".*-dev.*"
+				}
+			],
+			"config": {
+				"apiEndpoint": "https://dev-api.gov.uk/v2",
+				"debugMode": true,
+				"logLevel": "debug",
+				"timeout": 15000,
+				"enableAnalytics": false,
+				"featureToggles": {
+					"newDashboard": true,
+					"experimentalFeatures": true
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true,
+			"tags": ["environment", "development"]
+		},
+		{
+			"id": "staging-environment",
+			"name": "Staging Environment Config",
+			"description": "Pre-production testing environment",
+			"priority": 290,
+			"conditions": [
+				{
+					"type": "user_agent_match",
+					"operator": "regex",
+					"value": ".*-staging.*"
+				}
+			],
+			"config": {
+				"apiEndpoint": "https://staging-api.gov.uk/v2",
+				"debugMode": true,
+				"logLevel": "info",
+				"timeout": 10000,
+				"featureToggles": {
+					"newDashboard": true,
+					"experimentalFeatures": true
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true,
+			"tags": ["environment", "staging"]
+		},
+		{
+			"id": "ios-base-v2",
+			"name": "iOS Base Configuration v2",
+			"description": "Enhanced base configuration for iOS devices",
+			"priority": 100,
+			"conditions": [
+				{
+					"type": "os",
+					"operator": "eq",
+					"value": "iOS"
+				}
+			],
+			"config": {
+				"theme": "auto",
+				"featureToggles": {
+					"biometricAuth": true,
+					"darkMode": true,
+					"pushNotifications": true,
+					"healthKit": true,
+					"appleWallet": true
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true,
+			"tags": ["ios", "base", "v2"]
+		},
+		{
+			"id": "android-base-v2",
+			"name": "Android Base Configuration v2",
+			"description": "Enhanced base configuration for Android devices",
+			"priority": 100,
+			"conditions": [
+				{
+					"type": "os",
+					"operator": "eq",
+					"value": "Android"
+				}
+			],
+			"config": {
+				"theme": "auto",
+				"timeout": 6000,
+				"featureToggles": {
+					"pushNotifications": true,
+					"googleFit": true
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true,
+			"tags": ["android", "base", "v2"]
+		},
+		{
+			"id": "uk-users-v2",
+			"name": "UK Users Configuration v2",
+			"description": "Enhanced configuration for UK users with new features",
+			"priority": 80,
+			"conditions": [
+				{
+					"type": "geo_country",
+					"operator": "eq",
+					"value": "GB"
+				}
+			],
+			"config": {
+				"apiEndpoint": "https://api.gov.uk/v2",
+				"cacheExpiry": 7200,
+				"notificationSettings": {
+					"enabled": true,
+					"frequency": "realtime"
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true,
+			"tags": ["geo", "uk", "v2"]
+		},
+		{
+			"id": "mobile-optimization-v2",
+			"name": "Mobile Device Optimization v2",
+			"description": "Enhanced performance optimizations for mobile devices",
+			"priority": 60,
+			"conditions": [
+				{
+					"type": "device",
+					"operator": "eq",
+					"value": "Mobile"
+				}
+			],
+			"config": {
+				"maxRetries": 5,
+				"timeout": 8000,
+				"cacheExpiry": 5400,
+				"featureToggles": {
+					"offlineMode": true
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true,
+			"tags": ["mobile", "performance", "v2"]
+		},
+		{
+			"id": "beta-testers",
+			"name": "Beta Testers Program",
+			"description": "Special configuration for beta testing users",
+			"priority": 120,
+			"conditions": [
+				{
+					"type": "user_agent_match",
+					"operator": "regex",
+					"value": ".*-beta.*"
+				}
+			],
+			"config": {
+				"featureToggles": {
+					"newDashboard": true,
+					"experimentalFeatures": true
+				},
+				"enableAnalytics": true
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true,
+			"tags": ["beta", "testing"]
+		},
+		{
+			"id": "government-workers",
+			"name": "Government Workers Enhanced Security",
+			"description": "High security configuration for government employees",
+			"priority": 150,
+			"conditions": [
+				{
+					"type": "user_agent_match",
+					"operator": "regex",
+					"value": "GovWorker"
+				}
+			],
+			"config": {
+				"securityLevel": "high",
+				"timeout": 10000,
+				"featureToggles": {
+					"biometricAuth": true
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true,
+			"executeAfter": ["ios-base-v2", "android-base-v2"],
+			"tags": ["security", "gov-workers"]
+		},
+		{
+			"id": "mp-preview-features",
+			"name": "MP Preview Features",
+			"description": "Early access features for Members of Parliament - loaded conditionally",
+			"priority": 200,
+			"conditions": [],
+			"config": {
+				"securityLevel": "high",
+				"apiEndpoint": "https://api.parliament.uk/v2",
+				"featureToggles": {
+					"newDashboard": true,
+					"experimentalFeatures": true,
+					"mpOnlyFeatures": true,
+					"constituencyInsights": true,
+					"votingAlerts": true,
+					"biometricAuth": true
+				},
+				"notificationSettings": {
+					"enabled": true,
+					"frequency": "realtime",
+					"categories": ["updates", "alerts", "parliamentary", "constituency"]
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": false,
+			"tags": ["mp", "preview", "vip"]
+		},
+		{
+			"id": "minister-config",
+			"name": "Cabinet Minister Configuration",
+			"description": "Highest security and all features for cabinet ministers - loaded conditionally",
+			"priority": 250,
+			"conditions": [],
+			"config": {
+				"securityLevel": "top-secret",
+				"timeout": 15000,
+				"apiEndpoint": "https://api.cabinet.gov.uk/v2",
+				"featureToggles": {
+					"newDashboard": true,
+					"experimentalFeatures": true,
+					"mpOnlyFeatures": true,
+					"constituencyInsights": true,
+					"votingAlerts": true,
+					"cabinetDocuments": true,
+					"secureMessaging": true,
+					"biometricAuth": true
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": false,
+			"tags": ["minister", "cabinet", "vip", "top-secret"]
+		},
+		{
+			"id": "old-device-optimization",
+			"name": "Old Device Performance Optimization",
+			"description": "Reduced features for older devices",
+			"priority": 70,
+			"conditions": [
+				{
+					"type": "user_agent_match",
+					"operator": "regex",
+					"value": "(iOS 15|iOS 14|Android 12)"
+				}
+			],
+			"config": {
+				"timeout": 12000,
+				"maxRetries": 3,
+				"featureToggles": {
+					"newDashboard": false,
+					"experimentalFeatures": false,
+					"offlineMode": false
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true,
+			"tags": ["performance", "legacy"]
+		},
+		{
+			"id": "tablet-optimization",
+			"name": "Tablet Optimization",
+			"description": "Optimized configuration for tablet devices",
+			"priority": 65,
+			"conditions": [
+				{
+					"type": "user_agent_match",
+					"operator": "regex",
+					"value": "iPad"
+				}
+			],
+			"config": {
+				"timeout": 7000,
+				"maxRetries": 4,
+				"featureToggles": {
+					"splitView": true,
+					"multiwindow": true
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true,
+			"tags": ["tablet", "ipad"]
+		},
+		{
+			"id": "scotland-regional",
+			"name": "Scotland Regional Config",
+			"description": "Scotland-specific features and endpoints",
+			"priority": 85,
+			"conditions": [
+				{
+					"type": "geo_region",
+					"operator": "eq",
+					"value": "Scotland"
+				}
+			],
+			"config": {
+				"apiEndpoint": "https://api.gov.scot/v2",
+				"cacheExpiry": 9000,
+				"featureToggles": {
+					"gaelicLanguage": true,
+					"scottishServices": true
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true,
+			"tags": ["geo", "scotland", "regional"]
+		},
+		{
+			"id": "poor-connectivity-optimization",
+			"name": "Poor Connectivity Optimization",
+			"description": "Optimizations for users with poor network connectivity",
+			"priority": 90,
+			"conditions": [
+				{
+					"type": "geo_region",
+					"operator": "in",
+					"value": ["Scottish Highlands", "Rural Wales", "Cornwall"]
+				}
+			],
+			"config": {
+				"timeout": 15000,
+				"maxRetries": 6,
+				"cacheExpiry": 10800,
+				"featureToggles": {
+					"offlineMode": true,
+					"dataCompression": true
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": true,
+			"tags": ["connectivity", "rural", "offline"]
+		}
+	],
+	"conditionalRules": [
+		{
+			"ruleId": "experimental-ui",
+			"loadConditions": [
+				{
+					"type": "feature_flag",
+					"value": {
+						"flagName": "experimentalUI",
+						"expectedValue": true
+					}
+				},
+				{
+					"type": "percentage_rollout",
+					"value": {
+						"percentage": 10,
+						"ruleId": "experimental-ui"
+					}
+				}
+			],
+			"lazyLoad": true
+		},
+		{
+			"ruleId": "mp-preview-features",
+			"loadConditions": [
+				{
+					"type": "custom",
+					"value": {
+						"key": "userType",
+						"operator": "eq",
+						"value": "mp"
+					}
+				}
+			],
+			"lazyLoad": false
+		},
+		{
+			"ruleId": "minister-config",
+			"loadConditions": [
+				{
+					"type": "custom",
+					"value": {
+						"key": "userType",
+						"operator": "eq",
+						"value": "minister"
+					}
+				}
+			],
+			"lazyLoad": false
+		}
+	]
 }
-

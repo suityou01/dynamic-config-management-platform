@@ -112,13 +112,7 @@
 			"name": "Development Environment Config",
 			"description": "Debug mode and verbose logging for development",
 			"priority": 300,
-			"conditions": [
-				{
-					"type": "user_agent_match",
-					"operator": "regex",
-					"value": ".*-dev.*"
-				}
-			],
+			"conditions": [],
 			"config": {
 				"apiEndpoint": "https://dev-api.gov.uk/v2",
 				"debugMode": true,
@@ -131,7 +125,7 @@
 				}
 			},
 			"resolutionStrategy": "merge",
-			"enabled": true,
+			"enabled": false,
 			"tags": ["environment", "development"]
 		},
 		{
@@ -139,13 +133,7 @@
 			"name": "Staging Environment Config",
 			"description": "Pre-production testing environment",
 			"priority": 290,
-			"conditions": [
-				{
-					"type": "user_agent_match",
-					"operator": "regex",
-					"value": ".*-staging.*"
-				}
-			],
+			"conditions": [],
 			"config": {
 				"apiEndpoint": "https://staging-api.gov.uk/v2",
 				"debugMode": true,
@@ -157,7 +145,7 @@
 				}
 			},
 			"resolutionStrategy": "merge",
-			"enabled": true,
+			"enabled": false,
 			"tags": ["environment", "staging"]
 		},
 		{
@@ -280,6 +268,29 @@
 			"resolutionStrategy": "merge",
 			"enabled": true,
 			"tags": ["beta", "testing"]
+		},
+		{
+			"id": "early-adopter-rollout",
+			"name": "Early Adopter 25% Rollout",
+			"description": "Gradual rollout of beta features to 25% of users with betaFeatures flag",
+			"priority": 115,
+			"conditions": [],
+			"config": {
+				"featureToggles": {
+					"newDashboard": true,
+					"experimentalFeatures": true,
+					"earlyAccess": true
+				},
+				"enableAnalytics": true,
+				"notificationSettings": {
+					"enabled": true,
+					"frequency": "realtime",
+					"categories": ["updates", "alerts", "beta-announcements"]
+				}
+			},
+			"resolutionStrategy": "merge",
+			"enabled": false,
+			"tags": ["beta", "rollout", "early-adopter"]
 		},
 		{
 			"id": "government-workers",
@@ -457,6 +468,46 @@
 		}
 	],
 	"conditionalRules": [
+		{
+			"ruleId": "development-environment",
+			"loadConditions": [
+				{
+					"type": "environment",
+					"value": "development"
+				}
+			],
+			"lazyLoad": false
+		},
+		{
+			"ruleId": "staging-environment",
+			"loadConditions": [
+				{
+					"type": "environment",
+					"value": "staging"
+				}
+			],
+			"lazyLoad": false
+		},
+		{
+			"ruleId": "early-adopter-rollout",
+			"loadConditions": [
+				{
+					"type": "feature_flag",
+					"value": {
+						"flagName": "betaFeatures",
+						"expectedValue": true
+					}
+				},
+				{
+					"type": "percentage_rollout",
+					"value": {
+						"percentage": 25,
+						"ruleId": "early-adopter-rollout"
+					}
+				}
+			],
+			"lazyLoad": true
+		},
 		{
 			"ruleId": "experimental-ui",
 			"loadConditions": [

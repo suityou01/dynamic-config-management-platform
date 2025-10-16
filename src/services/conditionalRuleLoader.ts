@@ -39,7 +39,8 @@ export class ConditionalRuleLoader {
   ): boolean {
     switch (condition.type) {
       case "environment":
-        return spec.environment === condition.value;
+        // Check context.environment first, then fall back to spec.environment
+        return (context.environment || spec.environment) === condition.value;
 
       case "feature_flag": {
         const { flagName, expectedValue } = condition.value;
